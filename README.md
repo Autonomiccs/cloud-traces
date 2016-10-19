@@ -25,6 +25,8 @@ The output of the simulation will be written to a file named 'cloud-traces.log' 
 * Fork our project :)
 * for management techniques you can extend 'br.com.autonomiccs.cloudTraces.algorithms.management.ClusterAdministrationAlgorithmEmptyImpl' or implement 'br.com.autonomiccs.cloudTraces.algorithms.management.ClusterAdministrationAlgorithm'. After that, you can write your own and fancy management methods ;)
 * With your brand new management algorithm you need to change the method 'br.com.autonomiccs.cloudTraces.main.CloudTracesSimulator.getClusterAdministrationAlgorithms()' to return your newly created algorithm, then just re-run the aforementioned maven tasks and execute the simulation. 
-* get the result, analyze the data, plot it, write the paper an publish it.  
+* get the result, analyze the data, plot it, write the paper and publish it.  
 
-For deployment the steps are basically the same, with only one change, instead of extending 'br.com.autonomiccs.cloudTraces.algorithms.management.ClusterAdministrationAlgorithmEmptyImpl' or implementing 'br.com.autonomiccs.cloudTraces.algorithms.management.ClusterAdministrationAlgorithm', you have to implement 'br.com.autonomiccs.cloudTraces.algorithms.deployment.DeploymentHeuristic' or extend 'br.com.autonomiccs.cloudTraces.algorithms.deployment.SmallestClustersFirstDeploymentHeuristic'. Then, change the method 'br.com.autonomiccs.cloudTraces.main.CloudTracesSimulator.getDeploymentHeuristic()'
+For deployment the steps are basically the same, with only small changes:
+* you have to implement 'br.com.autonomiccs.cloudTraces.algorithms.deployment.DeploymentHeuristic' or extend 'br.com.autonomiccs.cloudTraces.algorithms.deployment.SmallestClustersFirstDeploymentHeuristic'
+* then, change the method 'br.com.autonomiccs.cloudTraces.main.CloudTracesSimulator.getDeploymentHeuristic()'
