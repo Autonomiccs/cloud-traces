@@ -154,9 +154,13 @@ public class CloudTracesSimulator {
             logger.info(String.format("Cluster [%s] before management memory memory STD [%.2fGib], cpu STD [%.2fGhz] at time [%.2f]", c.getId(),
                     clusterMemoryAllocatedInMibStd / 1024, clusterCpuAllocatedInGhStd, currentTime));
 
+            long timeBeforeManagementProcess = System.nanoTime();
             List<Host> sortedHosts = clusterAdministrationAlgorithm.rankHosts(c.getHosts());
             Map<VirtualMachine, Host> mapVMsToHost = clusterAdministrationAlgorithm.mapVMsToHost(sortedHosts);
-            logger.info(String.format("#migrations [%d] mapped for cluster [%s] at time [%.2f]", mapVMsToHost.size(), c.getId(), currentTime));
+            long timeAfterManagementProcess = System.nanoTime();
+            logger.info(String.format("#migrations [%d] mapped for cluster [%s] at time [%.2f]; total processing time [%d] (nanoSeconds)", mapVMsToHost.size(), c.getId(),
+                    currentTime,
+                    timeAfterManagementProcess - timeBeforeManagementProcess));
             for (VirtualMachine vm : mapVMsToHost.keySet()) {
                 Host targetHost = mapVMsToHost.get(vm);
                 migrateVmToHost(vm, targetHost);
