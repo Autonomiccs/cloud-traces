@@ -117,11 +117,18 @@ public class CloudTracesSimulator {
             logger.info(String.format("Time [%.3f], cloud state [%s] ", currentTime, cloud));
 
             executeManagement(cloud, currentTime);
+            logClustersStdAtTime(cloud.getClusters(), currentTime);
 
             currentTime += timeUnitPerLoopIteration;
         }
         logger.debug("Cloud configuration after simulation: " + cloud);
         logger.info("Cloud highestResourceUsage: " + cloudStateHighestMemoryAllocation);
+    }
+
+    private static void logClustersStdAtTime(List<Cluster> clusters, double currentTime) {
+        for (Cluster c : clusters) {
+            logClusterStdAtTime(currentTime, c, StringUtils.EMPTY);
+        }
     }
 
     private static void applyLoadOnCloudForCurrentTime(Map<Integer, List<VirtualMachine>> mapVirtualMachinesTaskExecutionByTime, Cloud cloud, double currentTime) {
@@ -173,10 +180,14 @@ public class CloudTracesSimulator {
     }
 
     private static void logClusterStdAtTime(double currentTime, Cluster c, boolean beforeExecutingMigrations) {
+        logClusterStdAtTime(currentTime, c, (beforeExecutingMigrations ? "before" : "after") + " management;");
+    }
+
+    private static void logClusterStdAtTime(double currentTime, Cluster c, String epochOfLog) {
         double clusterMemoryAllocatedInMibStd = calculateClusterMemoryAllocatedInMibStd(c);
         double clusterCpuAllocatedInGhStd = calculateClusterCpuAllocatedInGhStd(c);
-        logger.info(String.format("Cluster [%s] %s management; memory memory STD [%.2fGib], cpu STD [%.2fGhz] at time [%.2f]", c.getId(),
-                beforeExecutingMigrations ? "before" : "after", clusterMemoryAllocatedInMibStd / 1024, clusterCpuAllocatedInGhStd, currentTime));
+        logger.info(String.format("Cluster [%s] %s memory memory STD [%.2fGib], cpu STD [%.2fGhz] at time [%.2f]", c.getId(), epochOfLog, clusterMemoryAllocatedInMibStd / 1024,
+                clusterCpuAllocatedInGhStd, currentTime));
     }
 
     private static StandardDeviation std = new StandardDeviation(false);
