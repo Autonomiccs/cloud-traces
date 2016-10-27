@@ -180,13 +180,13 @@ public class CloudTracesSimulator {
     }
 
     private static void logClusterStdAtTime(double currentTime, Cluster c, boolean beforeExecutingMigrations) {
-        logClusterStdAtTime(currentTime, c, (beforeExecutingMigrations ? "before" : "after") + " management;");
+        logClusterStdAtTime(currentTime, c, (beforeExecutingMigrations ? "before" : "after") + " management; ");
     }
 
     private static void logClusterStdAtTime(double currentTime, Cluster c, String epochOfLog) {
         double clusterMemoryAllocatedInMibStd = calculateClusterMemoryAllocatedInMibStd(c);
         double clusterCpuAllocatedInGhStd = calculateClusterCpuAllocatedInGhStd(c);
-        logger.info(String.format("Cluster [%s] %s memory memory STD [%.2fGib], cpu STD [%.2fGhz] at time [%.2f]", c.getId(), epochOfLog, clusterMemoryAllocatedInMibStd / 1024,
+        logger.info(String.format("Cluster [%s] %smemory STD [%.2fGib], cpu STD [%.2fGhz] at time [%.2f]", c.getId(), epochOfLog, clusterMemoryAllocatedInMibStd / 1024,
                 clusterCpuAllocatedInGhStd, currentTime));
     }
 
