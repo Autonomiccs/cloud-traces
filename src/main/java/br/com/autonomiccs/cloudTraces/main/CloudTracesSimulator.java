@@ -111,8 +111,8 @@ public class CloudTracesSimulator {
                 highetResourceAllocation = cloud.getMemoryAllocatedInBytes();
                 cloudStateHighestMemoryAllocation = cloud.toString();
             }
-            destroyVirtualMachinesIfNeeded(cloud, currentTime);
             applyLoadOnCloudForCurrentTime(mapVirtualMachinesTaskExecutionByTime, cloud, currentTime);
+            destroyVirtualMachinesIfNeeded(cloud, currentTime);
 
             logger.info(String.format("Time [%.3f], cloud state [%s] ", currentTime, cloud));
 
@@ -148,19 +148,17 @@ public class CloudTracesSimulator {
         logger.debug("Executing management at time:" + currentTime);
         ClusterAdministrationAlgorithm clusterAdministrationAlgorithm = getClusterAdministrationAlgorithms();
         for (Cluster c : cloud.getClusters()) {
-            double clusterMemoryAllocatedInMibStd = calculateClusterMemoryAllocatedInMibStd(c);
-            double clusterCpuAllocatedInGhStd = calculateClusterCpuAllocatedInGhStd(c);
-
-            logger.info(String.format("Cluster [%s] before management memory memory STD [%.2fGib], cpu STD [%.2fGhz] at time [%.2f]", c.getId(),
-                    clusterMemoryAllocatedInMibStd / 1024, clusterCpuAllocatedInGhStd, currentTime));
 
             long timeBeforeManagementProcess = System.nanoTime();
             List<Host> sortedHosts = clusterAdministrationAlgorithm.rankHosts(c.getHosts());
             Map<VirtualMachine, Host> mapVMsToHost = clusterAdministrationAlgorithm.mapVMsToHost(sortedHosts);
             long timeAfterManagementProcess = System.nanoTime();
             logger.info(String.format("#migrations [%d] mapped for cluster [%s] at time [%.2f]; total processing time [%d] (nanoSeconds)", mapVMsToHost.size(), c.getId(),
-                    currentTime,
-                    timeAfterManagementProcess - timeBeforeManagementProcess));
+                    currentTime, timeAfterManagementProcess - timeBeforeManagementProcess));
+
+            if (!mapVMsToHost.isEmpty()) {
+                logClusterStdAtTime(currentTime, c, true);
+            }
             for (VirtualMachine vm : mapVMsToHost.keySet()) {
                 Host targetHost = mapVMsToHost.get(vm);
                 migrateVmToHost(vm, targetHost);
@@ -168,12 +166,17 @@ public class CloudTracesSimulator {
             updateClusterResourceAllocated(c);
             updateClusterResourceUsageForTime(c, currentTime);
 
-            clusterMemoryAllocatedInMibStd = calculateClusterMemoryAllocatedInMibStd(c);
-            clusterCpuAllocatedInGhStd = calculateClusterCpuAllocatedInGhStd(c);
-
-            logger.info(String.format("Cluster [%s] after management memory memory STD [%.2fGib], cpu STD [%.2fGhz] at time [%.2f]", c.getId(),
-                    clusterMemoryAllocatedInMibStd / 1024, clusterCpuAllocatedInGhStd, currentTime));
+            if (!mapVMsToHost.isEmpty()) {
+                logClusterStdAtTime(currentTime, c, false);
+            }
         }
+    }
+
+    private static void logClusterStdAtTime(double currentTime, Cluster c, boolean beforeExecutingMigrations) {
+        double clusterMemoryAllocatedInMibStd = calculateClusterMemoryAllocatedInMibStd(c);
+        double clusterCpuAllocatedInGhStd = calculateClusterCpuAllocatedInGhStd(c);
+        logger.info(String.format("Cluster [%s] %s management; memory memory STD [%.2fGib], cpu STD [%.2fGhz] at time [%.2f]", c.getId(),
+                beforeExecutingMigrations ? "before" : "after", clusterMemoryAllocatedInMibStd / 1024, clusterCpuAllocatedInGhStd, currentTime));
     }
 
     private static StandardDeviation std = new StandardDeviation(false);
@@ -346,6 +349,7 @@ public class CloudTracesSimulator {
         for (VirtualMachine virtualMachine : new HashSet<>(cloud.getVirtualMachines())) {
             if (virtualMachine.getDestroyTime() < currentTime && virtualMachine.getHost() != null) {
                 virtualMachinesDestroyed++;
+                logger.debug("Destroying VM: " + virtualMachine + "at time: " + currentTime);
                 destroyVirtualMachine(virtualMachine, cloud);
             }
         }
@@ -420,7 +424,7 @@ public class CloudTracesSimulator {
                 }
             }
         }
-        throw new GoogleTracesToCloudTracesException("Could not find a suitable host to deploy VM: " + virtualMachine);
+        throw new GoogleTracesToCloudTracesException("Could not find a suitable host to deploy VM: " + virtualMachine + "\nCloud state: " + cloud);
     }
 
     private static boolean canHostSupportVirtualMachine(Host host, VirtualMachine virtualMachine) {
@@ -476,8 +480,8 @@ public class CloudTracesSimulator {
     private static Cloud createCloudEnvirtonmentToStartsimulation() {
         Cloud cloud = new Cloud("Google data traces");
         cloud.getClusters().addAll(createClustersMediumSizeHosts(10));
-        cloud.getClusters().addAll(createClustersWithEnourmousHosts(2));
         cloud.getClusters().addAll(createClustersLargeSizeHosts(3));
+        cloud.getClusters().addAll(createClustersWithEnourmousHosts(3));
 
         long totalMemory = 0;
         long totalCpu = 0;
@@ -533,7 +537,7 @@ public class CloudTracesSimulator {
         String clusterId = "cluster-" + CLUSTER_ID++;
         Cluster cluster = new Cluster(clusterId);
         for (int i = 0; i < numberOfHosts; i++) {
-            cluster.getHosts().add(createHostWithConfig(amoutOfMemoryInMb, "host-" + i + 1, numberOfCores, coreSpeedInMhz));
+            cluster.getHosts().add(createHostWithConfig(amoutOfMemoryInMb, "host-" + (i + 1), numberOfCores, coreSpeedInMhz));
             for (Host h : cluster.getHosts()) {
                 h.setClusterId(clusterId);
             }
