@@ -90,4 +90,11 @@ public class Host extends ComputingResource {
         }
         return false;
     }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        Host clone = (Host)super.clone();
+        clone.virtualMachines = new HashSet<>(virtualMachines);
+        return clone;
+    }
 }

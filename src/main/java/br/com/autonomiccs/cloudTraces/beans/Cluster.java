@@ -40,4 +40,11 @@ public class Cluster extends ComputingResource {
     public String toString() {
         return String.format("Cluster %s, #hosts[%d]", super.toString(), hosts.size());
     }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        Cluster clone = (Cluster)super.clone();
+        clone.hosts = new ArrayList<>(this.hosts);
+        return clone;
+    }
 }
