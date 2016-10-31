@@ -117,18 +117,23 @@ public class CloudTracesSimulator {
             logger.info(String.format("Time [%.3f], cloud state [%s] ", currentTime, cloud));
 
             executeManagement(cloud, currentTime);
-            logClustersStdAtTime(cloud.getClusters(), currentTime);
+            logClustersConfigurationsAndStdAtTime(cloud.getClusters(), currentTime);
 
             currentTime += timeUnitPerLoopIteration;
         }
-        logger.debug("Cloud configuration after simulation: " + cloud);
+        logger.info("Cloud configuration after simulation: " + cloud);
         logger.info("Cloud highestResourceUsage: " + cloudStateHighestMemoryAllocation);
     }
 
-    private static void logClustersStdAtTime(List<Cluster> clusters, double currentTime) {
+    private static void logClustersConfigurationsAndStdAtTime(List<Cluster> clusters, double currentTime) {
         for (Cluster c : clusters) {
+            logClusterConfigurationAtTime(c, currentTime);
             logClusterStdAtTime(currentTime, c, StringUtils.EMPTY);
         }
+    }
+
+    private static void logClusterConfigurationAtTime(Cluster c, double currentTime) {
+        logger.info(String.format("Cluster configuration at time [%.2f]: %s", currentTime, c));
     }
 
     private static void applyLoadOnCloudForCurrentTime(Map<Integer, List<VirtualMachine>> mapVirtualMachinesTaskExecutionByTime, Cloud cloud, double currentTime) {
