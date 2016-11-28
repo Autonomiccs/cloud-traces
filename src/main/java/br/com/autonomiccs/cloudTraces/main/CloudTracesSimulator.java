@@ -634,7 +634,7 @@ public class CloudTracesSimulator {
             throw new GoogleTracesToCloudTracesException("this should not happen");
         }
         listTasksByTime.add(googleTask);
-        googleJob.getTaks().add(googleTask);
+        googleJob.getTasks().add(googleTask);
     }
 
     private static GoogleTask createTask(Matcher matcher, int time, int jobId) {

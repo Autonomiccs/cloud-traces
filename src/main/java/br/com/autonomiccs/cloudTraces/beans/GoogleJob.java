@@ -22,14 +22,19 @@
 package br.com.autonomiccs.cloudTraces.beans;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.Set;
 
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.log4j.Logger;
 
 public class GoogleJob {
+
+    private final static Logger logger = Logger.getLogger(GoogleJob.class);
 
     private int startTime;
     private int endTime;
@@ -42,7 +47,7 @@ public class GoogleJob {
     private int timeWithPeakCpuUsage;
     private int timeWithPeakMemoryUsage;
 
-    private Queue<GoogleTask> taks = new PriorityQueue<>();
+    private Queue<GoogleTask> tasks = new PriorityQueue<>();
     private Map<Integer, List<GoogleTask>> mapTimeByTasks = new HashMap<>();
 
     public GoogleJob(Integer jobId) {
@@ -81,8 +86,8 @@ public class GoogleJob {
         this.jobType = jobType;
     }
 
-    public Queue<GoogleTask> getTaks() {
-        return taks;
+    public Queue<GoogleTask> getTasks() {
+        return tasks;
     }
 
     public Map<Integer, List<GoogleTask>> getMapTimeByTasks() {
@@ -123,8 +128,19 @@ public class GoogleJob {
 
     @Override
     public String toString() {
+        logger.debug(String.format("toString of: Job id [%s], number of tasks (with duplicated ones) [%d]", jobId, tasks.size()));
+        int numberOfDuplicates = 0;
+        Set<Integer> taskIds = new HashSet<>(tasks.size());
+        for (GoogleTask t : tasks) {
+            if (!taskIds.contains(t.getTaskId())) {
+                taskIds.add(t.getTaskId());
+                continue;
+            }
+            numberOfDuplicates++;
+        }
         return String.format(
                 "id [%d], start time [%d], end time [%d], type [%d], cpu usage peak [%.10f], memory usage peak [%.10f], time cpu peak [%d], time memory peak [%d], amount of tasks [%d]",
-                jobId, startTime, endTime, jobType, maximumCpuUsageAtTime, maximumMemoryUsageAtTime, timeWithPeakCpuUsage, timeWithPeakMemoryUsage, taks.size());
+                jobId, startTime, endTime, jobType, maximumCpuUsageAtTime, maximumMemoryUsageAtTime, timeWithPeakCpuUsage, timeWithPeakMemoryUsage,
+                tasks.size() - numberOfDuplicates);
     }
 }

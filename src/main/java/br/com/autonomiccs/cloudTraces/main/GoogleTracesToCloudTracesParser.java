@@ -243,7 +243,7 @@ public class GoogleTracesToCloudTracesParser {
 
     private static void buildJobsTaksByTimeMap(Collection<GoogleJob> googleJobs) {
         for (GoogleJob googleJob : googleJobs) {
-            for (GoogleTask googleTask : googleJob.getTaks()) {
+            for (GoogleTask googleTask : googleJob.getTasks()) {
                 List<GoogleTask> googleTasksAtTime = googleJob.getMapTimeByTasks().get(googleTask.getTime());
                 if (googleTasksAtTime == null) {
                     googleTasksAtTime = new ArrayList<>();
@@ -280,7 +280,7 @@ public class GoogleTracesToCloudTracesParser {
                 googleJob.setJobType(mapJobIdByJobType.get(jobId));
                 mapJobIdByGoogleJob.put(jobId, googleJob);
             }
-            googleJob.getTaks().addAll(googleTask.getExecutionThroughTime());
+            googleJob.getTasks().addAll(googleTask.getExecutionThroughTime());
         }
         logger.info(String.format("#Jobs with tasks [%d]", mapJobIdByGoogleJob.values().size()));
         return mapJobIdByGoogleJob.values();
