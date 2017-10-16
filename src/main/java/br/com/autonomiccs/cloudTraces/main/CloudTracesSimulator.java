@@ -70,6 +70,8 @@ public class CloudTracesSimulator {
      */
     private static int monitoredIntervalInMinutes = 7 * 60;
 
+    private static int megaByteToGigaByte = 1024;
+
     /**
      * The amount of time we go through every iteration of the loop.
      */
@@ -190,9 +192,12 @@ public class CloudTracesSimulator {
 
     private static void logClusterStdAtTime(double currentTime, Cluster c, String epochOfLog) {
         double clusterMemoryAllocatedInMibStd = calculateClusterMemoryAllocatedInMibStd(c);
+        double clusterMemoryUsageInMibStd = calculateClusterMemoryUsageInMibStd(c);
         double clusterCpuAllocatedInGhStd = calculateClusterCpuAllocatedInGhStd(c);
-        logger.info(String.format("Cluster [%s] %smemory STD [%.2fGib], cpu STD [%.2fGhz] at time [%.2f]", c.getId(), epochOfLog, clusterMemoryAllocatedInMibStd / 1024,
-                clusterCpuAllocatedInGhStd, currentTime));
+        double clusterCpuUsageInGhStd = calculateClusterCpuUsageInGhzStd(c);
+        logger.info(String.format("Cluster [%s] %smemory STD [%.2fGib], %smemory usage STD [%.2fGib], cpu STD [%.2fGhz], cpu usage STD [%.2fGhz] at time [%.2f]", c.getId(),
+                epochOfLog, clusterMemoryAllocatedInMibStd / megaByteToGigaByte, clusterMemoryUsageInMibStd / megaByteToGigaByte,
+                clusterCpuAllocatedInGhStd, clusterCpuUsageInGhStd, currentTime));
     }
 
     private static StandardDeviation std = new StandardDeviation(false);
@@ -206,6 +211,15 @@ public class CloudTracesSimulator {
         return std.evaluate(hostsMemoryUsage);
     }
 
+    private static double calculateClusterMemoryUsageInMibStd(Cluster cluster) {
+        List<Host> hosts = cluster.getHosts();
+        double hostsMemoryUsage[] = new double[hosts.size()];
+        for (int i = 0; i < hosts.size(); i++) {
+            hostsMemoryUsage[i] = hosts.get(i).getMemoryUsedInMib();
+        }
+        return std.evaluate(hostsMemoryUsage);
+    }
+
     private static double calculateClusterCpuAllocatedInGhStd(Cluster cluster) {
         List<Host> hosts = cluster.getHosts();
         double hostsCpuAllocated[] = new double[hosts.size()];
@@ -213,6 +227,15 @@ public class CloudTracesSimulator {
             hostsCpuAllocated[i] = (hosts.get(i).getCpuAllocatedInMhz() / 1000d);
         }
         return std.evaluate(hostsCpuAllocated);
+    }
+
+    private static double calculateClusterCpuUsageInGhzStd(Cluster cluster) {
+        List<Host> hosts = cluster.getHosts();
+        double hostsCpuUsageInGhz[] = new double[hosts.size()];
+        for (int i = 0; i < hosts.size(); i++) {
+            hostsCpuUsageInGhz[i] = (hosts.get(i).getCpuUsedInMhz() / 1000d);
+        }
+        return std.evaluate(hostsCpuUsageInGhz);
     }
 
     private static void migrateVmToHost(VirtualMachine vm, Host targetHost) {
