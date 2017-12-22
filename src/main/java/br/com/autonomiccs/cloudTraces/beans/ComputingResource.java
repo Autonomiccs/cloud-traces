@@ -43,7 +43,7 @@ public abstract class ComputingResource implements Cloneable {
     @Override
     public String toString() {
         return String.format(
-                "id [%s], total memory [%dMB], total cpu [%dMhz], allocated memory [%dMB], allocated cpu [%dMhz], allocated memory in %% [%.2f], allocated cpu in %% [%.2f], memory used [%.2fMb], cpu used [%dMhz], used memory in %% [%.2f], used cpu in %% [%.2f]",
+                "id [%s], total memory [%dMB], total cpu [%dMhz], allocated memory [%dMB], allocated cpu [%dMhz], allocated memory in %% [%.2f], allocated cpu in %% [%.2f], memory used [%dMb], cpu used [%dMhz], used memory in %% [%.2f], used cpu in %% [%.2f]",
                 id, getTotalMemoryInMib(), totalCpuPowerInMhz, getMemoryAllocatedInMib(), cpuAllocatedInMhz, getMemoryAllocatedAsPercentage(), getCpuAllocatedAsPercentage(),
                 getMemoryUsedInMib(), cpuUsedInMhz, getUsedMemoryAsPercentage(), getUsedCpuAsPercentage());
     }
@@ -72,8 +72,8 @@ public abstract class ComputingResource implements Cloneable {
         return totalMemoryInBytes / NUMBER_OF_BYTES_IN_ONE_MEGA_BYTE;
     }
 
-    public double getMemoryUsedInMib() {
-        return memoryUsedInBytes / getLongAsDouble(NUMBER_OF_BYTES_IN_ONE_MEGA_BYTE);
+    public long getMemoryUsedInMib() {
+        return memoryUsedInBytes / NUMBER_OF_BYTES_IN_ONE_MEGA_BYTE;
     }
 
     public long getMemoryAllocatedInMib() {
