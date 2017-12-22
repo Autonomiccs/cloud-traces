@@ -195,9 +195,9 @@ public class CloudTracesSimulator {
         double clusterMemoryUsageInMibStd = calculateClusterMemoryUsageInMibStd(c);
         double clusterCpuAllocatedInGhStd = calculateClusterCpuAllocatedInGhStd(c);
         double clusterCpuUsageInGhStd = calculateClusterCpuUsageInGhzStd(c);
-        logger.info(String.format("Cluster [%s] %smemory STD [%.2fGib], %smemory usage STD [%.2fGib], cpu STD [%.2fGhz], cpu usage STD [%.2fGhz] at time [%.2f]", c.getId(),
-                epochOfLog, clusterMemoryAllocatedInMibStd / megaByteToGigaByte, clusterMemoryUsageInMibStd / megaByteToGigaByte,
-                clusterCpuAllocatedInGhStd, clusterCpuUsageInGhStd, currentTime));
+        logger.info(String.format("Cluster [%s] %smemory STD [%.2fGib], memory usage STD [%.2fGib], cpu STD [%.2fGhz], cpu usage STD [%.2fGhz] at time [%.2f]", c.getId(),
+                epochOfLog, clusterMemoryAllocatedInMibStd / megaByteToGigaByte, clusterMemoryUsageInMibStd / megaByteToGigaByte, clusterCpuAllocatedInGhStd,
+                clusterCpuUsageInGhStd, currentTime));
     }
 
     private static StandardDeviation std = new StandardDeviation(false);
